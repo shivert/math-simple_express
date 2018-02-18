@@ -1,0 +1,24 @@
+{
+  "name": "math-simple-express",
+  "version": "1.0.0",
+  "description": "Application Server for MathSimple",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shivert/math-simple_express.git"
+  },
+  "author": "Spencer Hivert <spencer.hivert@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shivert/math-simple_express/issues"
+  },
+  "homepage": "https://github.com/shivert/math-simple_express#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mathjs": "^3.20.2"
+  }
+}
