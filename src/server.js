@@ -1,32 +1,18 @@
 const express = require('express')
 const fs = require('fs')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 const simplifier = require('./simplifier')
 
-const BOOLEAN_LAWS = __dirname + './../data/boolean_laws.json'
-const SIMPLIFIED_EXPRESSION_STORAGE = __dirname + '/../data/pre-computed_expressions.json'
-
 let app = express()
 app.use(bodyParser.json())
+app.use(cors())
 
 // Returns list of implemented boolean laws
 app.get('/api/simplify/boolean/laws', (req, res) => {
     console.log("GET request received")
 
-    fs.readFile(BOOLEAN_LAWS, 'utf8', (err, data) => {
-        if (err && err.code === 'ENOENT') {
-            console.error('Invalid filename provided')
-            res.status(500).json({'error': 'Invalid File Name'})
-        }
-         res.end(data)
-    })
-})
-
-// Returns list of pre-computed simplifications
-app.get('/api/simplify/boolean/expressions', (req, res) => {
-    console.log("GET request received")
-
-    fs.readFile(SIMPLIFIED_EXPRESSION_STORAGE, 'utf8', (err, data) => {
+    fs.readFile(__dirname + '/../data/boolean_laws.json', 'utf8', (err, data) => {
         if (err && err.code === 'ENOENT') {
             console.error('Invalid filename provided')
             res.status(500).json({'error': 'Invalid File Name'})
@@ -35,77 +21,84 @@ app.get('/api/simplify/boolean/expressions', (req, res) => {
     })
 })
 
-
 // Computes + returns simplified expression
-// Current implemenation computes new value everytime and stores the result if not yet already computed
+// Current implementation computes the simplification each time
+// The result is stored and the popularity score is incremented
 app.post('/api/simplify/boolean/expressions', (req, res) => {
     console.log("POST request received")
 
-    const expression = req.body.expression
-    const simplifiedExpression = simplifier.simplifyBooleanExpression(expression)
+    const original = req.body.expression
+    const simplified = simplifier.simplifyBooleanExpression(original)
     simplifiedExpressionSaved = false
 
     // No need to record expressions that can't be further simplified
-    if (simplifiedExpression !== expression) {
-        fs.readFile(SIMPLIFIED_EXPRESSION_STORAGE, 'utf8', (err, data) => {
+    if (simplified !== original) {
+        fs.readFile(__dirname + '/../data/pre-computed_expressions.json', 'utf8', (err, data) => {
             if (err && err.code === 'ENOENT') {
                 console.error('Invalid filename provided')
                 res.status(500).json({'error': 'Invalid File Name'})
             }
             try {
                 let expressions = JSON.parse(data) // get JSON data from the file
-                let newExpression = {
-                    [expression]: simplifiedExpression
-                }
-                expressions = Object.assign(expressions, newExpression) // combine the results
-                fs.writeFileSync(SIMPLIFIED_EXPRESSION_STORAGE, JSON.stringify(expressions));
 
+                // If the expression is pre-computed, increase popularity score
+                if (expressions[original]) {
+                    expressions[original].popularity += 1
+                } else {
+                    expressions[original] = {
+                        simplified: simplified,
+                        popularity: 1
+                    }
+                }
+
+                fs.writeFileSync(__dirname + '/../data/pre-computed_expressions.json', JSON.stringify(expressions))
+                simplifiedExpressionSaved = true
             } catch (err) {
-                simplifiedExpressionSaved = false
-                console.error("Invalid service request")
+                console.error(err)
             }
         })
     }
 
     const jsonText = JSON.stringify({
-        expression: simplifiedExpression,
-        expressionRecorded: simplifiedExpressionSaved
+        originalExpression: original,
+        simplifiedExpression: simplified,
+        saveStatus: simplifiedExpressionSaved
     })
 
     res.end(jsonText)
 })
 
-// Can an expression be further simplified?
-app.post('/api/simplify/boolean/expression/simpler', (req, res) => {
-    console.log("POST request received")
+// Returns list of pre-simplified expressions and their popularity score
+app.get('/api/simplify/boolean/expressions', (req, res) => {
+    console.log("GET request received")
 
-    const expression = req.body.expression
-    const simplifiedExpression = simplifier.simplifyBooleanExpression(expression)
-
-    res.status(200).json({"result": expression !== simplifiedExpression})
-})
-
-// Has an expression already been simplified?
-app.post('/api/simplify/boolean/expressions/find', (req, res) => {
-    console.log("POST request received")
-
-    const expression = req.body.expression
-
-    fs.readFile(SIMPLIFIED_EXPRESSION_STORAGE, 'utf8', (err, data) => {
+    fs.readFile(__dirname + '/../data/pre-computed_expressions.json', 'utf8', (err, data) => {
         if (err && err.code === 'ENOENT') {
             console.error('Invalid filename provided')
             res.status(500).json({'error': 'Invalid File Name'})
         }
 
-        const expressions = JSON.parse(data) // get JSON data from the file
-        const preComputedExpression = expressions[expression]
+        let expressions = JSON.parse(data) // get JSON data from the file
 
-        const jsonText = JSON.stringify({
-            alreadySimplified: typeof(preComputedExpression) !== 'undefined',
-            simplifiedExpression: preComputedExpression
-        })
+        // If query param is specified
+        if (req.query.original && expressions[req.query.original]) {
+            data = {
+                alreadySimplified: true,
+                originalExpression: req.query.original,
+                simplifiedExpression: expressions[req.query.original].simplified,
+                popularity: expressions[req.query.original].popularity
+            }
 
-        res.end(jsonText)
+        } else if (req.query.original) {
+            data = {
+                alreadySimplified: false,
+                originalExpression: req.query.original,
+                simplifiedExpression: '',
+                popularity: 0
+            }
+        }
+
+        res.end(JSON.stringify(data))
     })
 })
 
