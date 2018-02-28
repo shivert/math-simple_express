@@ -1,3 +1,1 @@
-{
-
-}
+{"A+B":{"simplified":"A + B","popularity":3},"A+~A":{"simplified":"1","popularity":3},"A.B+A.~B":{"simplified":"A","popularity":1},"A.(B.C)":{"simplified":"A . B . C","popularity":2}}

@@ -43,6 +43,25 @@
       ]
     },
     {
+      "name": "Commutative Law",
+      "rules": [
+        "A + B = B + A",
+        "Note that this rule is implemented in simplification of more complex expressions, but is not used for fully simplified expressions: i.e Y + X is not considered simpler than X + Y"
+      ]
+    },
+    {
+      "name": "Associative Law",
+      "rules": [
+        "A . (B . C) = A . B . C"
+      ]
+    },
+    {
+      "name": "Misc Laws",
+      "rules": [
+        "~ ~ A = A"
+      ]
+    },
+    {
       "name": "Redundancy Law",
       "rules": [
         "A . B + A . ~B = A",
