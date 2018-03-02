@@ -6,7 +6,7 @@ npm install
 
 Next, start server with the following command:
 
-node src/server.js
+node server.js
 
 If not otherwise specified, server will be running at http://localhost:4000
 
