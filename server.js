@@ -12,7 +12,7 @@ app.use(cors())
 app.get('/api/simplify/boolean/laws', (req, res) => {
     console.log("GET request received")
 
-    fs.readFile(__dirname + '/../data/boolean_laws.json', 'utf8', (err, data) => {
+    fs.readFile(__dirname + '/data/boolean_laws.json', 'utf8', (err, data) => {
         if (err && err.code === 'ENOENT') {
             console.error('Invalid filename provided')
             res.status(500).json({'error': 'Invalid File Name'})
@@ -31,33 +31,30 @@ app.post('/api/simplify/boolean/expressions', (req, res) => {
     const simplified = simplifier.simplifyBooleanExpression(original)
     simplifiedExpressionSaved = false
 
-    // No need to record expressions that can't be further simplified
-    if (simplified !== original) {
-        fs.readFile(__dirname + '/../data/pre-computed_expressions.json', 'utf8', (err, data) => {
-            if (err && err.code === 'ENOENT') {
-                console.error('Invalid filename provided')
-                res.status(500).json({'error': 'Invalid File Name'})
-            }
-            try {
-                let expressions = JSON.parse(data) // get JSON data from the file
+    fs.readFile(__dirname + '/data/pre-computed_expressions.json', 'utf8', (err, data) => {
+        if (err && err.code === 'ENOENT') {
+            console.error('Invalid filename provided')
+            res.status(500).json({'error': 'Invalid File Name'})
+        }
+        try {
+            let expressions = JSON.parse(data) // get JSON data from the file
 
-                // If the expression is pre-computed, increase popularity score
-                if (expressions[original]) {
-                    expressions[original].popularity += 1
-                } else {
-                    expressions[original] = {
-                        simplified: simplified,
-                        popularity: 1
-                    }
+            // If the expression is pre-computed, increase popularity score
+            if (expressions[original]) {
+                expressions[original].popularity += 1
+            } else {
+                expressions[original] = {
+                    simplified: simplified,
+                    popularity: 1
                 }
-
-                fs.writeFileSync(__dirname + '/../data/pre-computed_expressions.json', JSON.stringify(expressions))
-                simplifiedExpressionSaved = true
-            } catch (err) {
-                console.error(err)
             }
-        })
-    }
+
+            fs.writeFileSync(__dirname + '/data/pre-computed_expressions.json', JSON.stringify(expressions))
+            simplifiedExpressionSaved = true
+        } catch (err) {
+            console.error(err)
+        }
+    })
 
     const jsonText = JSON.stringify({
         originalExpression: original,
@@ -72,7 +69,7 @@ app.post('/api/simplify/boolean/expressions', (req, res) => {
 app.get('/api/simplify/boolean/expressions', (req, res) => {
     console.log("GET request received")
 
-    fs.readFile(__dirname + '/../data/pre-computed_expressions.json', 'utf8', (err, data) => {
+    fs.readFile(__dirname + '/data/pre-computed_expressions.json', 'utf8', (err, data) => {
         if (err && err.code === 'ENOENT') {
             console.error('Invalid filename provided')
             res.status(500).json({'error': 'Invalid File Name'})

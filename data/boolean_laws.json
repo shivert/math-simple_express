@@ -43,10 +43,10 @@
       ]
     },
     {
-      "name": "Commutative Law",
+      "name": "Redundancy Law",
       "rules": [
-        "A + B = B + A",
-        "Note that this rule is implemented in simplification of more complex expressions, but is not used for fully simplified expressions: i.e Y + X is not considered simpler than X + Y"
+        "A . B + A . ~B = A",
+        "(A + B) . (A + ~B) = A"
       ]
     },
     {
@@ -62,10 +62,10 @@
       ]
     },
     {
-      "name": "Redundancy Law",
+      "name": "Commutative Law",
       "rules": [
-        "A . B + A . ~B = A",
-        "(A + B) . (A + ~B) = A"
+        "A + B = B + A",
+        "Note that this rule is implemented in simplification of more complex expressions, but is not used for fully simplified expressions: i.e Y + X is not considered simpler than X + Y"
       ]
     }
   ]
