@@ -1,0 +1,7 @@
+module.exports = Object.freeze({
+    INVALID_STATUS_CODE: 500,
+    INCREMENTAL_POPULARITY_VALUE: 1,
+    POPULARITY_SCORE_ZERO: 0,
+    PORT_4000: 4000
+});
+
