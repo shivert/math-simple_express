@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken')
 const config = require('../config')
+const constants = require('./../constants')
 
 verifyToken = (req, res, next) => {
     const token = req.headers['x-access-token']
     if (!token)
-        return res.status(403).send({ auth: false, message: 'No token provided.' })
+        return res.status(constants.FORBIDDEN_STATUS_CODE).send({ auth: false, message: 'No token provided.' })
     jwt.verify(token, config.secret, function(err, decoded) {
         if (err)
-            return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' })
+            return res.status(constants.UNAUTHORIZED_STATUS_CODE).send({ auth: false, message: 'Failed to authenticate token.' })
 
         // save to request for use in other routes in everything is good
         req.userId = decoded.id

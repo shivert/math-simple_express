@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const constants = require('./../constants')
 
 const bodyParser = require('body-parser')
 const simplifier = require('./../simplifier')
@@ -19,14 +20,8 @@ router.post('/boolean/expressions', VerifyToken, (req, res) => {
         // if boolean expression is found in database
         if (booleanExpression) {
             // Increment Popularity Score
-            BooleanExpression.findByIdAndUpdate(
-                booleanExpression.id,
-                { popularity: booleanExpression.popularity + 1},
-                (err) => {
-                    if (err) return res.status(500).send("There was a problem incrementing the popularity score.")
-                })
-
-            res.status(200).send(booleanExpression)
+            incrementPopularityScore(booleanExpression)
+            res.status(constants.OK_STATUS_CODE).send(booleanExpression)
         } else {
             // Simplify expression
             const original = req.body.expression
@@ -36,10 +31,10 @@ router.post('/boolean/expressions', VerifyToken, (req, res) => {
                 expression : original,
                 isSimplified : original === simplified,
                 simplified : simplified,
-                popularity: 1
+                popularity: constants.INCREMENTAL_POPULARITY_VALUE
             }, (err, booleanExpression) => {
-                if (err) return res.status(500).send("There was a problem adding the information to the database.")
-                res.status(200).send(booleanExpression)
+                if (err) return res.status(constants.INVALID_STATUS_CODE).send("There was a problem adding the information to the database.")
+                res.status(constants.OK_STATUS_CODE).send(booleanExpression)
             })
         }
     })
@@ -52,18 +47,31 @@ router.get('/boolean/expressions', VerifyToken, (req, res) => {
 
         // if boolean expression is found in database
         if (booleanExpression) {
-            res.status(200).send(booleanExpression)
+            res.status(constants.OK_STATUS_CODE).send(booleanExpression)
         } else {
-
-            const data = {
-                isSimplified: false,
-                expression: req.query.original,
-                simplified: '',
-                popularity: 0
-            }
-            res.status(200).send(data)
+            const data = setData(false, req.query.original, '', constants.POPULARITY_SCORE_ZERO)
+            res.status(constants.OK_STATUS_CODE).send(data)
         }
     })
 })
+
+function incrementPopularityScore(booleanExpression) {
+    BooleanExpression.findByIdAndUpdate(
+        booleanExpression.id,
+        { popularity: booleanExpression.popularity + constants.INCREMENTAL_POPULARITY_VALUE},
+        (err) => {
+            if (err) return res.status(constants.INVALID_STATUS_CODE).send("There was a problem incrementing the popularity score.")
+    })
+}
+
+function setData(isSimplified, expression, simplified, popularity) {
+    const data = {
+            isSimplified: isSimplified,
+            expression: expression,
+            simplified: simplified,
+            popularity: popularity
+        }
+    return data
+}
 
 module.exports = router
