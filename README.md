@@ -1,11 +1,15 @@
 ## Math Simple Express Server
 
-To begin, download all dependencies:
+Make sure yarn is installed. Using brew is easiest:
 
-`npm install`
+`brew install yarn`
 
-Next, start server with the following command:
+Next, install all dependencies using yarn:
 
-`node server.js`
+`yarn`
 
-If not otherwise specified, server will be running at http://localhost:8080
+Once all dependencies are installed, run the server using the following command:
+
+`yarn start`
+
+Unless otherwise specified, server will be running at http://localhost:8080

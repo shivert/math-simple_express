@@ -19,11 +19,9 @@ router.post('/boolean/expressions', VerifyToken, (req, res) => {
 
         // if boolean expression is found in database
         if (booleanExpression) {
-            // Increment Popularity Score
             incrementPopularityScore(booleanExpression)
             res.status(constants.OK_STATUS_CODE).send(booleanExpression)
         } else {
-            // Simplify expression
             const original = req.body.expression
             const simplified = simplifier.simplifyBooleanExpression(original)
 
@@ -55,7 +53,7 @@ router.get('/boolean/expressions', VerifyToken, (req, res) => {
     })
 })
 
-function incrementPopularityScore(booleanExpression) {
+incrementPopularityScore = (booleanExpression) => {
     BooleanExpression.findByIdAndUpdate(
         booleanExpression.id,
         { popularity: booleanExpression.popularity + constants.INCREMENTAL_POPULARITY_VALUE},
@@ -64,14 +62,13 @@ function incrementPopularityScore(booleanExpression) {
     })
 }
 
-function setData(isSimplified, expression, simplified, popularity) {
-    const data = {
-            isSimplified: isSimplified,
-            expression: expression,
-            simplified: simplified,
-            popularity: popularity
-        }
-    return data
+setData = (isSimplified, expression, simplified, popularity) => {
+    return {
+        isSimplified: isSimplified,
+        expression: expression,
+        simplified: simplified,
+        popularity: popularity
+    }
 }
 
 module.exports = router
